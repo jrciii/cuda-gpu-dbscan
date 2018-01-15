@@ -11,6 +11,18 @@ import java.util.Arrays;
 
 public class CudaGdbscan {
     public static int[] gdbscan(double[] xs, double[] ys, double eps, int minPts) {
+        cuInit(0);
+        CUdevice device = new CUdevice();
+        cuDeviceGet(device, 0);
+        CUcontext context = new CUcontext();
+        cuCtxCreate(context, 0, device);
+
+        CUmodule module = new CUmodule();
+        cuModuleLoad(module, CudaGdbscan.class.getResource("/getNeighbors8_0.ptx").getFile());
+
+        CUfunction function = new CUfunction();
+        cuModuleGetFunction(function,module,"cudaGetNeighbors");
+
         int length = xs.length;
 
         Pointer hostPointsX = Pointer.to(xs);
@@ -32,12 +44,6 @@ public class CudaGdbscan {
 
         cudaMemcpy(cudaPointsX, hostPointsX, length, cudaMemcpyKind.cudaMemcpyHostToDevice);
         cudaMemcpy(cudaPointsY, hostPointsY, length, cudaMemcpyKind.cudaMemcpyHostToDevice);
-
-        CUmodule module = new CUmodule();
-        cuModuleLoad(module, CudaGdbscan.class.getResource("/getNeighbors8_0.ptx").getFile());
-
-        CUfunction function = new CUfunction();
-        cuModuleGetFunction(function,module,"cudaGetNeighbors");
 
         Pointer kernelParameters = Pointer.to(cudaPointsX, cudaPointsY, cudaVis, Pointer.to(new int[]{length}), cudaNeighborArray, Pointer.to(new double[]{eps}), Pointer.to(new int[]{minPts}));
 

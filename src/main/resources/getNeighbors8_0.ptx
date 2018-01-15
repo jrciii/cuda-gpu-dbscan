@@ -62,11 +62,11 @@ BB0_2:
 	add.s64 	%rd11, %rd7, %rd10;
 	add.s64 	%rd13, %rd12, %rd8;
 	add.s64 	%rd14, %rd12, %rd10;
-	ld.global.f64 	%fd3, [%rd13];
+	ld.global.f64 	%fd3, [%rd11];
 	ld.global.f64 	%fd4, [%rd9];
 	sub.f64 	%fd5, %fd4, %fd3;
 	ld.global.f64 	%fd6, [%rd14];
-	ld.global.f64 	%fd7, [%rd11];
+	ld.global.f64 	%fd7, [%rd13];
 	sub.f64 	%fd8, %fd7, %fd6;
 	mul.f64 	%fd9, %fd8, %fd8;
 	fma.rn.f64 	%fd10, %fd5, %fd5, %fd9;
