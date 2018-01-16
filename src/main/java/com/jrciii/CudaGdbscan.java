@@ -17,8 +17,9 @@ public class CudaGdbscan {
         CUcontext context = new CUcontext();
         cuCtxCreate(context, 0, device);
 
+        String file = CudaGdbscan.class.getResource("/getNeighbors8_0.ptx").getFile().replace("/C:","C:");
         CUmodule module = new CUmodule();
-        cuModuleLoad(module, CudaGdbscan.class.getResource("/getNeighbors8_0.ptx").getFile());
+        cuModuleLoad(module, file);
 
         CUfunction function = new CUfunction();
         cuModuleGetFunction(function,module,"cudaGetNeighbors");
@@ -47,7 +48,7 @@ public class CudaGdbscan {
 
         Pointer kernelParameters = Pointer.to(cudaPointsX, cudaPointsY, cudaVis, Pointer.to(new int[]{length}), cudaNeighborArray, Pointer.to(new double[]{eps}), Pointer.to(new int[]{minPts}));
 
-        cuLaunchKernel(function,16,1,1,32,1,1,0, null, kernelParameters, null);
+        cuLaunchKernel(function,10,1,1,10,1,1,0, null, kernelParameters, null);
 
         cuCtxSynchronize();
 
