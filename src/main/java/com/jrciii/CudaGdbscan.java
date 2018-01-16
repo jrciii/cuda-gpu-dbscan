@@ -29,24 +29,22 @@ public class CudaGdbscan {
         Pointer hostPointsX = Pointer.to(xs);
         Pointer hostPointsY = Pointer.to(ys);
 
-        Pointer cudaPointsX = new Pointer();
-        cudaMalloc(cudaPointsX,length * Sizeof.DOUBLE);
+        CUdeviceptr cudaPointsX = new CUdeviceptr();
+        cuMemAlloc(cudaPointsX,length * Sizeof.DOUBLE);
+        cuMemcpyHtoD(cudaPointsX, hostPointsX, length * Sizeof.DOUBLE);
 
-        Pointer cudaPointsY = new Pointer();
-        cudaMalloc(cudaPointsY,length * Sizeof.DOUBLE);
+        CUdeviceptr cudaPointsY = new CUdeviceptr();
+        cuMemAlloc(cudaPointsY,length * Sizeof.DOUBLE);
+        cuMemcpyHtoD(cudaPointsY, hostPointsY, length * Sizeof.DOUBLE);
 
-        Pointer cudaNeighborArray = new Pointer();
-        cudaMalloc(cudaNeighborArray,length * length * Sizeof.INT);
+        CUdeviceptr cudaNeighborArray = new CUdeviceptr();
+        cuMemAlloc(cudaNeighborArray,length * length * Sizeof.INT);
         cudaMemset(cudaNeighborArray, 0, length * length);
 
-        Pointer cudaVis = new Pointer();
-        cudaMalloc(cudaVis,length * Sizeof.INT);
+        CUdeviceptr cudaVis = new CUdeviceptr();
+        cuMemAlloc(cudaVis,length * Sizeof.INT);
         cudaMemset(cudaVis, -1, length);
-
-        cudaMemcpy(cudaPointsX, hostPointsX, length, cudaMemcpyKind.cudaMemcpyHostToDevice);
-        cudaMemcpy(cudaPointsY, hostPointsY, length, cudaMemcpyKind.cudaMemcpyHostToDevice);
-
-        Pointer kernelParameters = Pointer.to(cudaPointsX, cudaPointsY, cudaVis, Pointer.to(new int[]{length}), cudaNeighborArray, Pointer.to(new double[]{eps}), Pointer.to(new int[]{minPts}));
+        Pointer kernelParameters = Pointer.to(Pointer.to(cudaPointsX), Pointer.to(cudaPointsY), Pointer.to(cudaVis), Pointer.to(new int[]{length}), Pointer.to(cudaNeighborArray), Pointer.to(new double[]{eps}), Pointer.to(new int[]{minPts}));
 
         cuLaunchKernel(function,10,1,1,10,1,1,0, null, kernelParameters, null);
 
